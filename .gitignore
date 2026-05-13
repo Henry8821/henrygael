@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+
+# Android / Eclipse (not needed for web game)
+assets/
+bin/
+gen/
+res/
+src/
+.settings/
+.vscode/
+local.properties
+*.launch

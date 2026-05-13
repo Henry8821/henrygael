@@ -1,0 +1,69 @@
+﻿/* NOVA STRIKE — Local Fonts (offline-safe for Android WebView) */
+
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/orbitron-400.woff2) format('woff2'),
+       url(fonts/orbitron-400.ttf)   format('truetype');
+}
+
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(fonts/orbitron-700.woff2) format('woff2'),
+       url(fonts/orbitron-700.ttf)   format('truetype');
+}
+
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url(fonts/orbitron-900.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/rajdhani-400.ttf) format('truetype');
+}
+
+/* Rajdhani weights 300/600/700 fall back to 400 */
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(fonts/rajdhani-400.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(fonts/rajdhani-400.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(fonts/rajdhani-400.ttf) format('truetype');
+}
+
+/* Share Tech Mono — falls back to system monospace */
+@font-face {
+  font-family: 'Share Tech Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Courier New'), local('monospace');
+}

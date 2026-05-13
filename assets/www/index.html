@@ -1,0 +1,2128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>NOVA STRIKE  Space Arcade</title>
+  <link href="libs/bootstrap.min.css" rel="stylesheet"/>
+  <link href="libs/font-awesome.min.css" rel="stylesheet"/>
+  <link href="libs/fonts.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+/* Weapon Shop Styles */
+.currency-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: rgba(0, 136, 255, 0.1);
+  border: 1px solid rgba(0, 136, 255, 0.3);
+  border-radius: 8px;
+}
+
+.cd-icon {
+  font-size: 24px;
+  color: var(--cyan);
+  width: 40px;
+  text-align: center;
+}
+
+.cd-info {
+  flex: 1;
+}
+
+.cd-amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  font-family: 'Orbitron', monospace;
+}
+
+.cd-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.shop-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(0, 136, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-item:hover {
+  border-color: var(--cyan);
+  background: rgba(0, 136, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.shop-item.owned {
+  border-color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.shop-item.locked {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  opacity: 0.6;
+}
+
+.shop-item.earned-only {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.si-restriction {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.shop-btn.earned-only {
+  background: linear-gradient(135deg, #ffd700, #ffaa00);
+  color: #000;
+}
+
+.shop-btn.locked {
+  background: rgba(100, 100, 100, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Enhanced reward visibility */
+.reward-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 1000;
+  text-align: center;
+  animation: rewardPulse 0.5s ease-out;
+}
+
+@keyframes rewardPulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.reward-popup-icon {
+  font-size: 48px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.reward-popup-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+.reward-popup-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Enhanced HUD reward display */
+.ghb-stat .fas {
+  margin-right: 4px;
+  color: var(--gold);
+}
+
+/* Floating reward indicators */
+.floating-reward {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100;
+  font-family: 'Orbitron', monospace;
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 0 0 10px currentColor;
+  animation: floatUp 2s ease-out forwards;
+}
+
+/* Weapon Selection Overlay */
+.weapon-select-card {
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid var(--cyan);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ws-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.ws-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.ws-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.ws-weapon {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.ws-weapon:hover {
+  border-color: var(--cyan);
+  background: rgba(0, 136, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.ws-weapon.active {
+  border-color: #00ff88;
+  background: rgba(0, 255, 136, 0.2);
+}
+
+.ws-weapon.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ws-weapon-key {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Orbitron', monospace;
+}
+
+.ws-weapon-name {
+  font-family: 'Orbitron', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+.ws-weapon-damage {
+  color: #ff6464;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.ws-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+}
+
+.si-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.si-name {
+  font-family: 'Orbitron', monospace;
+  font-weight: bold;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.si-damage {
+  background: rgba(255, 100, 100, 0.2);
+  color: #ff6464;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.si-icon {
+  font-size: 20px;
+  color: var(--cyan);
+  margin-right: 10px;
+}
+
+.si-desc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.si-cost {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffd700;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.si-cost i {
+  color: #ffd700;
+}
+
+.shop-btn {
+  background: linear-gradient(135deg, var(--cyan), #0066cc);
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shop-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00aaff, #0088ff);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 170, 255, 0.4);
+}
+
+.shop-btn:disabled {
+  background: rgba(100, 100, 100, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+}
+
+.shop-btn.owned {
+  background: linear-gradient(135deg, #00ff88, #00cc66);
+}
+
+.earn-method {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.em-icon {
+  font-size: 24px;
+  color: var(--gold);
+  width: 40px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.em-title {
+  font-family: 'Orbitron', monospace;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.em-desc {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* HUD Weapon Display */
+.ghs-weapon {
+  color: var(--cyan) !important;
+  font-weight: bold;
+}
+
+.ghs-coins {
+  color: #ffd700 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .currency-display {
+    padding: 12px;
+  }
+  
+  .cd-amount {
+    font-size: 18px;
+  }
+  
+  .shop-item {
+    padding: 15px;
+  }
+  
+  .si-name {
+    font-size: 14px;
+  }
+}
+  </style>
+</head>
+<body>
+
+<!-- Early shim: makes showScreen available for inline onclick before style.js loads -->
+<script>
+window.showScreen = function(name) {
+  var screens = document.querySelectorAll(".ns-screen");
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].style.display = "";
+    screens[i].classList.add("hidden");
+    screens[i].classList.remove("active");
+  }
+  var t = document.getElementById("screen-" + name);
+  if (t) { t.style.display = ""; t.classList.remove("hidden"); t.classList.add("active"); }
+  var nav = document.getElementById("mainNav");
+  if (nav) nav.classList.toggle("hidden", name === "splash" || name === "game");
+};
+</script>
+
+<!-- Custom cursor -->
+<div id="cursor"><div id="cursor-dot"></div></div>
+<!-- Starfield background canvas -->
+<canvas id="bgCanvas"></canvas>
+<!-- CRT scanline overlay -->
+<div id="scanlines"></div>
+<!-- Toast notifications -->
+<div id="toast" role="alert"></div>
+
+<!-- 
+     SCREEN 1  SPLASH / INTRO
+     Animated intro: planet, ship, asteroids,
+     loading bar, feature pills, skip button
+ -->
+<div id="screen-splash" class="ns-screen active">
+  
+  <!-- Decorative background elements -->
+  <div class="sp-planet">
+    <div class="sp-planet-ring"></div>
+    <div class="sp-planet-surface"></div>
+    <div class="sp-planet-glow"></div>
+    <div class="sp-crater c1"></div>
+    <div class="sp-crater c2"></div>
+    <div class="sp-crater c3"></div>
+  </div>
+  <canvas id="splashShipCanvas" class="sp-ship-canvas"></canvas>
+  <div class="sp-rock r1"></div>
+  <div class="sp-rock r2"></div>
+  <div class="sp-rock r3"></div>
+  <div class="sp-laser la1"></div>
+  <div class="sp-laser la2"></div>
+
+  <!-- Main splash content -->
+  <div class="sp-content text-center">
+    <div class="sp-badge"> ARCADE EDITION 2025 </div>
+    <div class="sp-title-block">
+      <div class="sp-t1">NOVA</div>
+      <div class="sp-t2">STRIKE</div>
+    </div>
+    <div class="sp-tag">
+      <span>DODGE</span><span class="sp-sep"></span>
+      <span>SHOOT</span><span class="sp-sep"></span>
+      <span>SURVIVE</span>
+    </div>
+    <p class="sp-desc">
+      High-octane browser space shooter  dodge asteroids,<br class="d-none d-md-block"/>
+      collect power-ups and fight bosses.
+    </p>
+    <!-- Bootstrap badges as feature pills -->
+    <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
+      <span class="ns-badge"><i class="fas fa-layer-group me-1"></i>5 Levels</span>
+      <span class="ns-badge"><i class="fas fa-crosshairs me-1"></i>Shoot Mode</span>
+      <span class="ns-badge"><i class="fas fa-bolt me-1"></i>7 Power-Ups</span>
+      <span class="ns-badge"><i class="fas fa-bomb me-1"></i>Boss Fights</span>
+      <span class="ns-badge"><i class="fas fa-trophy me-1"></i>Leaderboard</span>
+      <span class="ns-badge"><i class="fas fa-medal me-1"></i>Achievements</span>
+    </div>
+    <!-- Bootstrap progress bar for loading -->
+    <div class="sp-loader mt-4">
+      <div class="progress ns-prog-track">
+        <div class="progress-bar ns-prog-bar" id="loaderFill" role="progressbar"
+             style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <div class="sp-loader-label mt-1"><span id="loaderPct">0</span>%  INITIALIZING SYSTEMS...</div>
+    </div>
+    <button class="sp-skip-btn mt-3" id="splashSkip" onclick="showScreen('menu')">
+      SKIP <i class="fas fa-chevron-right ms-1"></i>
+    </button>
+  </div>
+  <!-- Corner HUD decorations -->
+  <div class="hud-corner tl"></div><div class="hud-corner tr"></div>
+  <div class="hud-corner bl"></div><div class="hud-corner br"></div>
+</div>
+
+<!-- 
+     MAIN NAVIGATION BAR
+     DLS-style: brand + always-visible resource bars + hamburger
+ -->
+<nav class="navbar navbar-expand-lg ns-navbar hidden" id="mainNav">
+  <div class="container-fluid px-2 px-lg-3">
+
+    <!-- Brand -->
+    <a class="navbar-brand ns-brand d-flex align-items-center gap-2 me-2" href="#" onclick="showScreen('menu');return false;">
+      <div class="ns-brand-icon"><i class="fas fa-rocket"></i></div>
+      <span class="ns-brand-text d-none d-sm-inline">NOVA<span>STRIKE</span></span>
+    </a>
+
+    <!-- ── RESOURCE BARS (always visible, DLS style) ── -->
+    <div class="ns-resource-bar" id="nsResourceBar">
+
+      <!-- Coins — tap to go to rewards shop -->
+      <button class="ns-res-pill ns-res-coins" onclick="showScreen('rewards');return false;" title="Coins — tap to spend">
+        <i class="fas fa-coins"></i>
+        <span id="navCoins">0</span>
+      </button>
+
+      <!-- XP -->
+      <button class="ns-res-pill ns-res-xp" onclick="showScreen('rewards');return false;" title="Experience">
+        <i class="fas fa-star"></i>
+        <span id="navXP">0</span>
+      </button>
+
+      <!-- Achievements — tap to view -->
+      <button class="ns-res-pill ns-res-ach" onclick="showScreen('achievements');return false;" title="Achievements">
+        <i class="fas fa-medal"></i>
+        <span id="navAchievements">0/18</span>
+      </button>
+
+    </div>
+
+    <!-- PLAY button (always visible) -->
+    <button class="ns-play-btn ms-2" onclick="launchGame();return false;">
+      <i class="fas fa-rocket me-1"></i><span class="d-none d-sm-inline">PLAY</span>
+    </button>
+
+    <!-- Hamburger toggler -->
+    <button class="navbar-toggler ns-toggler ms-2" type="button"
+            data-bs-toggle="collapse" data-bs-target="#nsNavLinks"
+            aria-controls="nsNavLinks" aria-expanded="false" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <!-- Collapsible nav links -->
+    <div class="collapse navbar-collapse" id="nsNavLinks">
+      <ul class="navbar-nav mx-auto gap-1 mt-2 mt-lg-0">
+        <li class="nav-item">
+          <a class="nav-link ns-link active" href="#" data-target="menu" onclick="showScreen('menu'); return false;">
+            <i class="fas fa-home me-1"></i>Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="shop" onclick="showScreen('shop'); return false;">
+            <i class="fas fa-shopping-cart me-1"></i>Shop
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="levels" onclick="showScreen('levels'); return false;">
+            <i class="fas fa-layer-group me-1"></i>Levels
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="leaderboard" onclick="showScreen('leaderboard'); return false;">
+            <i class="fas fa-trophy me-1"></i>Scores
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="multiplayer" onclick="showScreen('multiplayer'); return false;">
+            <i class="fas fa-satellite-dish me-1"></i>Multiplayer
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="achievements" onclick="showScreen('achievements'); return false;">
+            <i class="fas fa-medal me-1"></i>Awards
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="rewards" onclick="showScreen('rewards'); return false;">
+            <i class="fas fa-gift me-1"></i>Rewards
+          </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link ns-link dropdown-toggle" href="#" id="aboutDrop"
+             role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-info-circle me-1"></i>About
+          </a>
+          <ul class="dropdown-menu ns-dropdown" aria-labelledby="aboutDrop">
+            <li><a class="dropdown-item ns-dd-item" href="#" data-target="howtoplay" onclick="showScreen('howtoplay'); return false;">
+              <i class="fas fa-book-open me-2"></i>How to Play</a></li>
+            <li><hr class="dropdown-divider ns-divider"/></li>
+            <li><a class="dropdown-item ns-dd-item" href="#" data-target="credits" onclick="showScreen('credits'); return false;">
+              <i class="fas fa-users me-2"></i>Credits</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="settings" onclick="showScreen('settings'); return false;">
+            <i class="fas fa-cog me-1"></i>Settings
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ns-link" href="#" data-target="profile" id="navProfileLink" onclick="showScreen('profile'); return false;">
+            <i class="fas fa-user-astronaut me-1"></i><span id="navPilotName">Profile</span>
+          </a>
+        </li>
+      </ul>
+      <!-- Best score pill (desktop only) -->
+      <div class="ns-score-pill d-none d-lg-flex ms-2">
+        <i class="fas fa-star me-1"></i><span id="navBest">0</span>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+<!-- 
+     SCREEN 2  MAIN MENU / HOMEPAGE
+     Hero section: ship art, title, buttons,
+     best score stats, quick-play
+ -->
+<div id="screen-menu" class="ns-screen hidden">
+  <div class="menu-grid-bg"></div>
+  <div class="container-fluid h-100 d-flex align-items-center" style="padding-top:62px">
+    <div class="row w-100 align-items-center justify-content-center g-4">
+
+      <!-- Left: animated ship -->
+      <div class="col-xl-5 col-lg-6 d-none d-lg-flex justify-content-center">
+        <div class="text-center">
+          <canvas id="menuShipCanvas" width="320" height="360"></canvas>
+          <div class="menu-ship-info mt-2">
+            <div class="msi-name">NOVA CLASS  INTERCEPTOR</div>
+            <div class="d-flex justify-content-center gap-3 mt-1">
+              <span class="msi-stat"><i class="fas fa-bolt"></i> Speed: MAX</span>
+              <span class="msi-stat"><i class="fas fa-shield-alt"></i> Shield: 3</span>
+              <span class="msi-stat"><i class="fas fa-crosshairs"></i> Guns: DUAL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: menu controls -->
+      <div class="col-xl-5 col-lg-6 col-md-9 col-11 text-center text-lg-start">
+        <div class="menu-eyebrow">SELECT MISSION</div>
+        <h1 class="menu-hero-title">NOVA<br><span class="menu-accent">STRIKE</span></h1>
+        <p class="menu-sub">High-stakes space combat awaits, pilot.</p>
+
+        <!-- Action buttons -->
+        <div class="d-grid gap-3 menu-btns">
+          <!-- PRIMARY: PLAY NOW  calls launchGame() directly -->
+          <button class="ns-btn ns-btn-primary" onclick="launchGame()">
+            <span class="nb-icon"><i class="fas fa-rocket"></i></span>
+            <span class="nb-text">PLAY NOW</span>
+            <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+          </button>
+          <button class="ns-btn ns-btn-secondary" onclick="showScreen('levels')">
+            <span class="nb-icon"><i class="fas fa-layer-group"></i></span>
+            <span class="nb-text">LEVEL SELECT</span>
+            <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+          </button>
+          <button class="ns-btn ns-btn-secondary" onclick="showScreen('howtoplay')">
+            <span class="nb-icon"><i class="fas fa-book-open"></i></span>
+            <span class="nb-text">HOW TO PLAY</span>
+            <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+          </button>
+          <button class="ns-btn ns-btn-secondary" onclick="showScreen('multiplayer')" style="border-color:rgba(180,0,255,.4);background:rgba(180,0,255,.06);">
+            <span class="nb-icon"><i class="fas fa-satellite-dish" style="color:var(--purple)"></i></span>
+            <span class="nb-text" style="color:var(--purple)">MULTIPLAYER</span>
+            <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+          </button>
+          <div class="d-flex gap-2">
+            <button class="ns-btn ns-btn-ghost flex-fill" onclick="showScreen('leaderboard')">
+              <i class="fas fa-trophy me-1"></i>SCORES
+            </button>
+            <button class="ns-btn ns-btn-ghost flex-fill" onclick="showScreen('achievements')">
+              <i class="fas fa-medal me-1"></i>MEDALS
+            </button>
+            <button class="ns-btn ns-btn-ghost flex-fill" onclick="showScreen('settings')">
+              <i class="fas fa-cog me-1"></i>CONFIG
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <div class="stat-pill"><div class="sp-l"><i class="fas fa-star"></i> Best</div><div class="sp-v" id="menuBest">0</div></div>
+          <div class="stat-pill"><div class="sp-l"><i class="fas fa-layer-group"></i> Level</div><div class="sp-v" id="menuBestLv">1</div></div>
+          <div class="stat-pill"><div class="sp-l"><i class="fas fa-gamepad"></i> Games</div><div class="sp-v" id="menuGames">0</div></div>
+          <div class="stat-pill"><div class="sp-l"><i class="fas fa-clock"></i> Playtime</div><div class="sp-v" id="menuTime">0m</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- 
+     SCREEN 3  LEVEL SELECT
+     Bootstrap cards grid, 5 levels + locked
+ -->
+<div id="screen-levels" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-layer-group me-2"></i>SELECT MISSION LEVEL</h2>
+      <div class="ns-hd-deco"></div>
+    </div>
+    <div class="container-fluid px-4 py-4 ns-scroll">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+
+        <!-- Level 1 -->
+        <div class="col">
+          <div class="lv-card lv-card-1 h-100">
+            <canvas class="lv-canvas" data-level="1" width="380" height="150"></canvas>
+            <div class="lv-badge">LVL 01</div>
+            <div class="lv-stars"></div>
+            <div class="lv-body">
+              <h5 class="lv-title">PATROL ZONE</h5>
+              <p class="lv-desc">Quiet sector. Slow asteroids, no boss. Learn the controls and get your bearings before the storm hits.</p>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <span class="lv-tag lv-tag-green"><i class="fas fa-tachometer-alt me-1"></i>Easy</span>
+                <span class="lv-tag lv-tag-green"><i class="fas fa-star me-1"></i>0 pts req.</span>
+                <span class="lv-tag lv-tag-green"><i class="fas fa-shield-alt me-1"></i>3 Lives</span>
+              </div>
+              <button class="ns-btn ns-btn-lv-1 w-100" onclick="launchGame(1)">
+                <i class="fas fa-play me-2"></i>START LEVEL 1
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 2 -->
+        <div class="col">
+          <div class="lv-card lv-card-2 h-100">
+            <canvas class="lv-canvas" data-level="2" width="380" height="150"></canvas>
+            <div class="lv-badge">LVL 02</div>
+            <div class="lv-stars" style="color:#ffd60a"></div>
+            <div class="lv-body">
+              <h5 class="lv-title">STORM SECTOR</h5>
+              <p class="lv-desc">Asteroid density increases. Faster rocks, tighter dodges. Power-ups become critical for survival.</p>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <span class="lv-tag lv-tag-gold"><i class="fas fa-tachometer-alt me-1"></i>Medium</span>
+                <span class="lv-tag lv-tag-gold"><i class="fas fa-star me-1"></i>350 pts</span>
+                <span class="lv-tag lv-tag-gold"><i class="fas fa-shield-alt me-1"></i>3 Lives</span>
+              </div>
+              <button class="ns-btn ns-btn-lv-2 w-100" onclick="launchGame(2)">
+                <i class="fas fa-play me-2"></i>START LEVEL 2
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 3 -->
+        <div class="col">
+          <div class="lv-card lv-card-3 h-100">
+            <canvas class="lv-canvas" data-level="3" width="380" height="150"></canvas>
+            <div class="lv-badge">LVL 03</div>
+            <div class="lv-stars" style="color:#ff6400"></div>
+            <div class="lv-body">
+              <h5 class="lv-title">ASSAULT FIELD</h5>
+              <p class="lv-desc">Armoured asteroids appear. A TITAN BOSS awaits you. Rapid fire and nova bomb power-ups are vital.</p>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <span class="lv-tag lv-tag-orange"><i class="fas fa-tachometer-alt me-1"></i>Hard</span>
+                <span class="lv-tag lv-tag-orange"><i class="fas fa-star me-1"></i>800 pts</span>
+                <span class="lv-tag lv-tag-orange"><i class="fas fa-skull me-1"></i>BOSS</span>
+              </div>
+              <button class="ns-btn ns-btn-lv-3 w-100" onclick="launchGame(3)">
+                <i class="fas fa-play me-2"></i>START LEVEL 3
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 4 -->
+        <div class="col">
+          <div class="lv-card lv-card-4 h-100">
+            <canvas class="lv-canvas" data-level="4" width="380" height="150"></canvas>
+            <div class="lv-badge">LVL 04</div>
+            <div class="lv-stars" style="color:#ff006e"></div>
+            <div class="lv-body">
+              <h5 class="lv-title">CRISIS ZONE</h5>
+              <p class="lv-desc">Maximum density. Split asteroids shatter into two. Every second counts  one mistake ends you.</p>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <span class="lv-tag lv-tag-red"><i class="fas fa-tachometer-alt me-1"></i>Very Hard</span>
+                <span class="lv-tag lv-tag-red"><i class="fas fa-star me-1"></i>1500 pts</span>
+                <span class="lv-tag lv-tag-red"><i class="fas fa-bolt me-1"></i>Fast</span>
+              </div>
+              <button class="ns-btn ns-btn-lv-4 w-100" onclick="launchGame(4)">
+                <i class="fas fa-play me-2"></i>START LEVEL 4
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 5 -->
+        <div class="col">
+          <div class="lv-card lv-card-5 h-100">
+            <canvas class="lv-canvas" data-level="5" width="380" height="150"></canvas>
+            <div class="lv-badge">LVL 05</div>
+            <div class="lv-stars" style="color:#b400ff"></div>
+            <div class="lv-body">
+              <h5 class="lv-title">OMEGA VOID</h5>
+              <p class="lv-desc">The final frontier. VOID EMPEROR final boss. Maximum speed. Only elite pilots survive this void.</p>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                <span class="lv-tag lv-tag-purple"><i class="fas fa-tachometer-alt me-1"></i>Extreme</span>
+                <span class="lv-tag lv-tag-purple"><i class="fas fa-star me-1"></i>2500 pts</span>
+                <span class="lv-tag lv-tag-purple"><i class="fas fa-crown me-1"></i>FINAL BOSS</span>
+              </div>
+              <button class="ns-btn ns-btn-lv-5 w-100" onclick="launchGame(5)">
+                <i class="fas fa-play me-2"></i>START LEVEL 5
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locked card -->
+        <div class="col">
+          <div class="lv-card lv-card-locked h-100 d-flex flex-column">
+            <div class="lv-canvas-locked d-flex align-items-center justify-content-center">
+              <div class="text-center" style="color:rgba(200,230,255,.15)">
+                <i class="fas fa-lock" style="font-size:2.5rem"></i>
+                <div class="mt-2" style="font-size:.7rem;font-family:'Share Tech Mono',monospace;letter-spacing:.15em">BONUS STAGE</div>
+              </div>
+            </div>
+            <div class="lv-body flex-fill d-flex flex-column">
+              <h5 class="lv-title" style="color:rgba(200,230,255,.25)">COMING SOON</h5>
+              <p class="lv-desc flex-fill" style="color:rgba(200,230,255,.18)">Complete all 5 levels to unlock secret bonus missions with infinite waves.</p>
+              <button class="ns-btn ns-btn-ghost w-100" disabled style="opacity:.3">
+                <i class="fas fa-lock me-2"></i>LOCKED
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="text-center mt-4 pb-4">
+        <button class="ns-btn ns-btn-primary px-5" onclick="launchGame()">
+          <i class="fas fa-rocket me-2"></i>QUICK PLAY  LEVEL 1
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN: WEAPON SHOP
+     Purchase weapons and upgrades with coins
+ -->
+<div id="screen-shop" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-shopping-cart me-2"></i>WEAPON SHOP</h2>
+      <div class="ns-hd-deco"></div>
+    </div>
+    <div class="container-fluid px-4 py-4 ns-scroll">
+      
+      <!-- Currency Display -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-wallet me-2"></i>YOUR RESOURCES</div>
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="currency-display">
+                  <div class="cd-icon"><i class="fas fa-coins"></i></div>
+                  <div class="cd-info">
+                    <div class="cd-amount" id="shopCoins">0</div>
+                    <div class="cd-label">COINS</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="currency-display">
+                  <div class="cd-icon"><i class="fas fa-star"></i></div>
+                  <div class="cd-info">
+                    <div class="cd-amount" id="shopXP">0</div>
+                    <div class="cd-label">EXPERIENCE</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="currency-display">
+                  <div class="cd-icon"><i class="fas fa-rocket"></i></div>
+                  <div class="cd-info">
+                    <div class="cd-amount" id="shopWeapons">1</div>
+                    <div class="cd-label">WEAPONS UNLOCKED</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weapons Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-crosshairs me-2"></i>WEAPONS</div>
+            <div class="row g-3 mt-2" id="weaponShopGrid">
+              <!-- Weapons will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upgrades Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-cog me-2"></i>UPGRADES</div>
+            <div class="row g-3 mt-2" id="upgradeShopGrid">
+              <!-- Upgrades will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to Earn Currency -->
+      <div class="row">
+        <div class="col-12">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-info-circle me-2"></i>HOW TO EARN CURRENCY</div>
+            <div class="row g-3 mt-2">
+              <div class="col-md-6">
+                <div class="earn-method">
+                  <div class="em-icon"><i class="fas fa-coins"></i></div>
+                  <div class="em-info">
+                    <div class="em-title">COINS</div>
+                    <div class="em-desc">• 1 coin per 50 points scored<br>• Collect coin power-ups<br>• Complete achievements</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="earn-method">
+                  <div class="em-icon"><i class="fas fa-star"></i></div>
+                  <div class="em-info">
+                    <div class="em-title">EXPERIENCE</div>
+                    <div class="em-desc">• 1 XP per 25 points scored<br>• Collect XP power-ups<br>• Defeat bosses</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 4  HOW TO PLAY
+ -->
+<div id="screen-howtoplay" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-book-open me-2"></i>MISSION BRIEFING</h2>
+      <div class="ns-hd-deco"></div>
+    </div>
+    <div class="container-fluid px-4 py-4 ns-scroll">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-gamepad me-2"></i>CONTROLS</div>
+            <div class="ctrl-list">
+              <div class="ctrl-row"><div class="ctrl-key"><i class="fas fa-arrow-left"></i> / A</div><div>Rotate Left</div></div>
+              <div class="ctrl-row"><div class="ctrl-key"><i class="fas fa-arrow-right"></i> / D</div><div>Rotate Right</div></div>
+              <div class="ctrl-row"><div class="ctrl-key"><i class="fas fa-arrow-up"></i> / W</div><div>Thrust Forward</div></div>
+              <div class="ctrl-row"><div class="ctrl-key"><i class="fas fa-arrow-down"></i> / S</div><div>Brake / Reverse</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">SPACE</div><div>Fire Laser</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">Q</div><div>Cycle Weapons</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">E</div><div>Weapon Select</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">1-5</div><div>Quick Select</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">P</div><div>Pause / Resume</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">R</div><div>Restart Game</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">M</div><div>Mute / Unmute</div></div>
+              <div class="ctrl-row"><div class="ctrl-key">ESC</div><div>Quit to Menu</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-crosshairs me-2"></i>OBJECTIVES</div>
+            <ul class="obj-list list-unstyled">
+              <li><span class="oi"></span> Dodge or destroy falling asteroids for points</li>
+              <li><span class="oi"></span> Collect power-ups glowing on screen</li>
+              <li><span class="oi"></span> Build combos up to x8 for huge score boosts</li>
+              <li><span class="oi"></span> Survive boss waves to advance levels</li>
+              <li><span class="oi"></span> Top the leaderboard and unlock achievements</li>
+              <li><span class="oi"></span> Manage your shield  0 shield = lose a life</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-bolt me-2"></i>POWER-UPS</div>
+            <div class="row g-2">
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Shield</b><br><small>+35% shield</small></div></div></div>
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Rapid Fire</b><br><small>3x shot 8s</small></div></div></div>
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Slow Time</b><br><small>Half speed 6s</small></div></div></div>
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Score x2</b><br><small>Double pts 10s</small></div></div></div>
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Extra Life</b><br><small>+1 life, max 5</small></div></div></div>
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Nova Bomb</b><br><small>Clear all rocks</small></div></div></div>
+              <div class="col-6"><div class="pu-row"><span class="pu-ico"></span><div><b>Magnet</b><br><small>Attract pickups</small></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="ns-card">
+            <div class="ns-card-head"><i class="fas fa-layer-group me-2"></i>LEVELS & SCORING</div>
+            <div class="lvl-info-list">
+              <div class="lvl-info-row lvi-1"><span class="li-n">01</span><span class="li-name">PATROL</span><span class="li-d"></span><span class="li-p">0 pts</span></div>
+              <div class="lvl-info-row lvi-2"><span class="li-n">02</span><span class="li-name">STORM</span><span class="li-d"></span><span class="li-p">350</span></div>
+              <div class="lvl-info-row lvi-3"><span class="li-n">03</span><span class="li-name">ASSAULT</span><span class="li-d"></span><span class="li-p">800</span></div>
+              <div class="lvl-info-row lvi-4"><span class="li-n">04</span><span class="li-name">CRISIS</span><span class="li-d"></span><span class="li-p">1500</span></div>
+              <div class="lvl-info-row lvi-5"><span class="li-n">05</span><span class="li-name">OMEGA</span><span class="li-d"></span><span class="li-p">2500</span></div>
+            </div>
+            <div class="ns-tip mt-3">
+              <i class="fas fa-lightbulb me-2"></i>
+              <strong>TIP:</strong> Build your combo  every dodge without getting hit adds to your multiplier!
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4 pb-4">
+        <button class="ns-btn ns-btn-primary px-5" onclick="launchGame()">
+          <i class="fas fa-rocket me-2"></i>I'M READY  LAUNCH!
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN: MULTIPLAYER LOBBY
+     Real-time online play  lobby, rooms, chat
+ -->
+<div id="screen-multiplayer" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-satellite-dish me-2"></i>MULTIPLAYER</h2>
+      <div class="ns-hd-deco purple"></div>
+    </div>
+    <div class="container-fluid px-4 py-4 ns-scroll">
+      <div class="row justify-content-center g-4">
+        <div class="col-xl-10 col-12">
+
+          <!-- Connection status bar -->
+          <div class="mp-status-bar mb-4">
+            <div class="mp-status-dot" id="mpStatusDot"></div>
+            <span class="mp-status-label" id="mpStatusLabel">OFFLINE  NOT CONNECTED</span>
+            <div class="ms-auto d-flex align-items-center gap-2">
+              <span class="mp-ping hidden" id="mpPing"><i class="fas fa-signal me-1"></i><span id="mpPingVal">--</span>ms</span>
+              <button class="ns-btn ns-btn-ghost ns-btn-sm" id="mpConnectBtn" onclick="mpConnect()">
+                <i class="fas fa-plug me-1"></i>CONNECT
+              </button>
+            </div>
+          </div>
+
+          <!-- Pilot callsign -->
+          <div class="ns-card mb-4">
+            <div class="ns-card-head"><i class="fas fa-id-badge me-2"></i>PILOT CALLSIGN</div>
+            <div class="d-flex gap-3 align-items-center flex-wrap mt-3">
+              <div class="mp-ship-preview">
+                <canvas id="mpShipCanvas" width="80" height="90"></canvas>
+              </div>
+              <div class="flex-fill">
+                <div class="mp-input-wrap">
+                  <input type="text" id="mpCallsign" class="mp-input" maxlength="16"
+                         placeholder="ENTER CALLSIGN..." oninput="mpUpdateCallsign(this.value)"/>
+                  <span class="mp-input-icon"><i class="fas fa-pen"></i></span>
+                </div>
+                <div class="d-flex gap-2 mt-2 flex-wrap">
+                  <span class="mp-info-pill"><i class="fas fa-star me-1"></i>Best: <b id="mpMyBest">0</b></span>
+                  <span class="mp-info-pill"><i class="fas fa-layer-group me-1"></i>Level: <b id="mpMyLevel">1</b></span>
+                  <span class="mp-info-pill"><i class="fas fa-gamepad me-1"></i>Games: <b id="mpMyGames">0</b></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main panels -->
+          <div class="row g-4">
+            <!-- LEFT: Quick Match + Create Room -->
+            <div class="col-lg-5">
+              <div class="ns-card mp-action-card mb-4">
+                <div class="ns-card-head"><i class="fas fa-bolt me-2"></i>QUICK MATCH</div>
+                <p class="mp-card-desc">Jump straight in  we'll find pilots at your skill level.</p>
+                <div class="mp-mode-grid mb-3">
+                  <label class="mp-mode-tile active" data-mode="deathmatch">
+                    <input type="radio" name="mpMode" value="deathmatch" checked hidden/>
+                    <i class="fas fa-crosshairs mp-mode-ico"></i>
+                    <span class="mp-mode-name">DEATHMATCH</span>
+                    <span class="mp-mode-sub">Most kills wins</span>
+                  </label>
+                  <label class="mp-mode-tile" data-mode="survival">
+                    <input type="radio" name="mpMode" value="survival" hidden/>
+                    <i class="fas fa-shield-alt mp-mode-ico"></i>
+                    <span class="mp-mode-name">SURVIVAL</span>
+                    <span class="mp-mode-sub">Last pilot standing</span>
+                  </label>
+                  <label class="mp-mode-tile" data-mode="score">
+                    <input type="radio" name="mpMode" value="score" hidden/>
+                    <i class="fas fa-star mp-mode-ico"></i>
+                    <span class="mp-mode-name">SCORE RACE</span>
+                    <span class="mp-mode-sub">Highest score wins</span>
+                  </label>
+                  <label class="mp-mode-tile" data-mode="coop">
+                    <input type="radio" name="mpMode" value="coop" hidden/>
+                    <i class="fas fa-users mp-mode-ico"></i>
+                    <span class="mp-mode-name">CO-OP</span>
+                    <span class="mp-mode-sub">Team vs asteroids</span>
+                  </label>
+                </div>
+                <button class="ns-btn ns-btn-primary w-100" onclick="mpQuickMatch()">
+                  <span class="nb-icon"><i class="fas fa-search"></i></span>
+                  <span class="nb-text">FIND MATCH</span>
+                  <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+                </button>
+              </div>
+              <div class="ns-card mp-action-card">
+                <div class="ns-card-head"><i class="fas fa-plus-circle me-2"></i>CREATE ROOM</div>
+                <p class="mp-card-desc">Host a private room and invite friends with a code.</p>
+                <div class="mp-field mb-2">
+                  <label class="mp-field-label">Room Name</label>
+                  <input type="text" id="mpRoomName" class="mp-input" maxlength="24" placeholder="MY SQUADRON..."/>
+                </div>
+                <div class="d-flex gap-2 mb-3">
+                  <div class="mp-field flex-fill">
+                    <label class="mp-field-label">Max Players</label>
+                    <select class="mp-select" id="mpMaxPlayers">
+                      <option value="2">2 Pilots</option>
+                      <option value="4" selected>4 Pilots</option>
+                      <option value="6">6 Pilots</option>
+                      <option value="8">8 Pilots</option>
+                    </select>
+                  </div>
+                  <div class="mp-field flex-fill">
+                    <label class="mp-field-label">Privacy</label>
+                    <select class="mp-select" id="mpPrivacy">
+                      <option value="public">Public</option>
+                      <option value="private" selected>Private</option>
+                    </select>
+                  </div>
+                </div>
+                <button class="ns-btn ns-btn-secondary w-100" onclick="mpCreateRoom()">
+                  <span class="nb-icon"><i class="fas fa-satellite-dish"></i></span>
+                  <span class="nb-text">CREATE ROOM</span>
+                  <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- RIGHT: Browse + Join by code -->
+            <div class="col-lg-7">
+              <div class="ns-card mb-4">
+                <div class="ns-card-head"><i class="fas fa-key me-2"></i>JOIN BY CODE</div>
+                <div class="d-flex gap-2">
+                  <input type="text" id="mpJoinCode" class="mp-input flex-fill" maxlength="6"
+                         placeholder="ENTER 6-DIGIT CODE..."
+                         style="text-transform:uppercase;letter-spacing:.3em;font-size:1.1rem;text-align:center"/>
+                  <button class="ns-btn ns-btn-secondary" onclick="mpJoinByCode()">
+                    <i class="fas fa-sign-in-alt me-1"></i>JOIN
+                  </button>
+                </div>
+              </div>
+              <div class="ns-card">
+                <div class="ns-card-head d-flex align-items-center">
+                  <i class="fas fa-broadcast-tower me-2"></i>LIVE ROOMS
+                  <span class="mp-room-count ms-2" id="mpRoomCount">0 online</span>
+                  <button class="ns-btn ns-btn-ghost ns-btn-sm ms-auto" onclick="mpRefreshRooms()">
+                    <i class="fas fa-sync-alt me-1"></i>REFRESH
+                  </button>
+                </div>
+                <div class="d-flex gap-2 mt-3 mb-3 flex-wrap">
+                  <button class="mp-filter-btn active" onclick="mpSetFilter(this,'all')">ALL</button>
+                  <button class="mp-filter-btn" onclick="mpSetFilter(this,'deathmatch')">DEATHMATCH</button>
+                  <button class="mp-filter-btn" onclick="mpSetFilter(this,'survival')">SURVIVAL</button>
+                  <button class="mp-filter-btn" onclick="mpSetFilter(this,'score')">SCORE RACE</button>
+                  <button class="mp-filter-btn" onclick="mpSetFilter(this,'coop')">CO-OP</button>
+                </div>
+                <div id="mpRoomList" class="mp-room-list">
+                  <div class="mp-empty-state" id="mpEmptyRooms">
+                    <i class="fas fa-satellite-dish mp-empty-ico"></i>
+                    <div class="mp-empty-title">NO ROOMS FOUND</div>
+                    <div class="mp-empty-sub">Connect to scan for active rooms or create your own.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Matchmaking overlay -->
+          <div class="mp-matchmaking hidden" id="mpMatchmaking">
+            <div class="mp-mm-card text-center">
+              <div class="mp-mm-radar">
+                <div class="mp-mm-ring r1"></div>
+                <div class="mp-mm-ring r2"></div>
+                <div class="mp-mm-ring r3"></div>
+                <i class="fas fa-crosshairs mp-mm-ico"></i>
+              </div>
+              <div class="mp-mm-title">SCANNING FOR PILOTS</div>
+              <div class="mp-mm-sub" id="mpMmSub">Searching for opponents...</div>
+              <div class="mp-mm-players" id="mpMmPlayers">
+                <div class="mp-mm-slot filled" id="mpMmSlot0">
+                  <i class="fas fa-rocket" style="color:var(--cyan)"></i><span id="mpMmName0">YOU</span>
+                </div>
+                <div class="mp-mm-slot" id="mpMmSlot1"><i class="fas fa-question"></i><span>???</span></div>
+                <div class="mp-mm-slot" id="mpMmSlot2"><i class="fas fa-question"></i><span>???</span></div>
+                <div class="mp-mm-slot" id="mpMmSlot3"><i class="fas fa-question"></i><span>???</span></div>
+              </div>
+              <button class="ns-btn ns-btn-ghost mt-4" onclick="mpCancelSearch()">
+                <i class="fas fa-times me-2"></i>CANCEL SEARCH
+              </button>
+            </div>
+          </div>
+
+          <!-- Room lobby -->
+          <div class="mp-room-lobby hidden" id="mpRoomLobby">
+            <div class="ns-card mt-4">
+              <div class="ns-card-head d-flex align-items-center">
+                <i class="fas fa-users me-2"></i>
+                <span id="mpLobbyRoomName">ROOM</span>
+                <span class="mp-room-code ms-3" id="mpLobbyCode">------</span>
+                <button class="ns-btn ns-btn-ghost ns-btn-sm ms-auto" onclick="mpCopyCode()">
+                  <i class="fas fa-copy me-1"></i>COPY CODE
+                </button>
+              </div>
+              <div class="mp-lobby-players mt-3" id="mpLobbyPlayers"></div>
+              <div class="mp-chat mt-3">
+                <div class="mp-chat-head"><i class="fas fa-comments me-2"></i>SQUAD COMMS</div>
+                <div class="mp-chat-log" id="mpChatLog"></div>
+                <div class="d-flex gap-2 mt-2">
+                  <input type="text" id="mpChatInput" class="mp-input flex-fill" maxlength="80"
+                         placeholder="Send message..." onkeydown="if(event.key==='Enter')mpSendChat()"/>
+                  <button class="ns-btn ns-btn-ghost" onclick="mpSendChat()">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="d-flex gap-3 mt-4 flex-wrap">
+                <button class="ns-btn ns-btn-ghost flex-fill" onclick="mpLeaveLobby()">
+                  <i class="fas fa-sign-out-alt me-2"></i>LEAVE
+                </button>
+                <button class="ns-btn ns-btn-primary flex-fill" onclick="mpStartMatch()">
+                  <span class="nb-icon"><i class="fas fa-rocket"></i></span>
+                  <span class="nb-text">LAUNCH MISSION</span>
+                  <span class="nb-arr"><i class="fas fa-chevron-right"></i></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 5  LEADERBOARD
+     Bootstrap table + tabs + podium
+ -->
+<div id="screen-leaderboard" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-trophy me-2"></i>HALL OF HEROES</h2>
+      <div class="ns-hd-deco gold"></div>    </div>
+    <div class="container-fluid px-4 py-4 ns-scroll">
+      <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-11 col-12">
+          <!-- Bootstrap nav pills as tabs -->
+          <ul class="nav nav-pills ns-tabs mb-3" id="lbTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link ns-tab active" data-bs-toggle="pill" data-bs-target="#tab-alltime">All Time</button></li>
+            <li class="nav-item"><button class="nav-link ns-tab" data-bs-toggle="pill" data-bs-target="#tab-today">Today</button></li>
+            <li class="nav-item"><button class="nav-link ns-tab" data-bs-toggle="pill" data-bs-target="#tab-mine">My Scores</button></li>
+          </ul>
+          <div class="tab-content">
+            <!-- All Time -->
+            <div class="tab-pane fade show active" id="tab-alltime">
+              <div class="podium-row d-flex align-items-end justify-content-center gap-3 mb-4" id="podiumRow"></div>
+              <div class="table-responsive">
+                <table class="table ns-table">
+                  <thead><tr>
+                    <th>#</th><th><i class="fas fa-user me-1"></i>Pilot</th>
+                    <th><i class="fas fa-star me-1"></i>Score</th>
+                    <th><i class="fas fa-layer-group me-1"></i>Level</th>
+                    <th><i class="fas fa-clock me-1"></i>Time</th><th>Rank</th>
+                  </tr></thead>
+                  <tbody id="lbTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Today -->
+            <div class="tab-pane fade" id="tab-today">
+              <div class="table-responsive">
+                <table class="table ns-table">
+                  <thead><tr><th>#</th><th>Pilot</th><th>Score</th><th>Level</th><th>Rank</th></tr></thead>
+                  <tbody id="lbTodayBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <!-- My Scores -->
+            <div class="tab-pane fade" id="tab-mine">
+              <div class="table-responsive">
+                <table class="table ns-table">
+                  <thead><tr><th>#</th><th>Score</th><th>Level</th><th>Survived</th><th>Date</th></tr></thead>
+                  <tbody id="lbMineBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <button class="ns-btn ns-btn-primary px-5" onclick="launchGame()">
+              <i class="fas fa-rocket me-2"></i>CLAIM TOP SPOT
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 6  ACHIEVEMENTS
+ -->
+<div id="screen-achievements" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-medal me-2"></i>ACHIEVEMENTS</h2>
+      <div class="ns-hd-deco gold"></div>
+    </div>
+    <div class="container-fluid px-4 py-3 ns-scroll">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-12">
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <span class="ach-count" id="achCount">0 / 12</span>
+            <div class="progress flex-fill ns-ach-prog" style="height:7px">
+              <div class="progress-bar ns-ach-fill" id="achFill" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="row g-3" id="achGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 7  SETTINGS
+     Audio, Gameplay, Display, Controls,
+     Ship Skin, Data Management
+ -->
+<div id="screen-settings" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-cog me-2"></i>CONFIGURATION</h2>
+      <div class="ns-hd-deco"></div>
+    </div>
+    <div class="container-fluid px-4 py-4 ns-scroll">
+      <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9 col-12">
+
+          <!-- AUDIO -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-music me-2"></i>AUDIO</div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Music</span>
+              <div class="ns-toggle on" id="t-music" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Sound FX</span>
+              <div class="ns-toggle on" id="t-sfx" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center" style="border:none">
+              <span class="nsg-label">Master Volume</span>
+              <input type="range" min="0" max="10" value="7" class="ns-range" id="s-volume"/>
+            </div>
+          </div>
+
+          <!-- GAMEPLAY -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-gamepad me-2"></i>GAMEPLAY</div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Ship Speed & Handling</span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="nsg-val" id="sensitivityVal">5</span>
+                <input type="range" min="1" max="10" value="5" class="ns-range" id="s-sensitivity" oninput="document.getElementById('sensitivityVal').textContent=this.value"/>
+              </div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Auto-Fire (hold SPACE)</span>
+              <div class="ns-toggle on" id="t-autofire" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Show Hit Markers</span>
+              <div class="ns-toggle on" id="t-hitmarkers" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center" style="border:none">
+              <span class="nsg-label">Difficulty</span>
+              <select class="ns-select" id="s-difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+                <option value="insane">Insane</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- DISPLAY -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-tv me-2"></i>DISPLAY</div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Particle Effects</span>
+              <div class="ns-toggle on" id="t-particles" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">CRT Scanlines</span>
+              <div class="ns-toggle on" id="t-scanlines" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center">
+              <span class="nsg-label">Screen Shake</span>
+              <div class="ns-toggle on" id="t-shake" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+            <div class="nsg-row d-flex justify-content-between align-items-center" style="border:none">
+              <span class="nsg-label">Mobile Controls</span>
+              <div class="ns-toggle" id="t-mobile" onclick="toggleSetting(this)"><div class="nt-knob"></div></div>
+            </div>
+          </div>
+
+          <!-- THEME -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-palette me-2"></i>GAME THEME</div>
+            <div class="nsg-row d-flex justify-content-between align-items-center" style="border:none">
+              <span class="nsg-label">Color Theme</span>
+              <select class="ns-select" id="s-theme" onchange="applyTheme(this.value)">
+                <option value="space">Space Blue (Default)</option>
+                <option value="neon">Neon Cyber</option>
+                <option value="fire">Fire Storm</option>
+                <option value="ice">Arctic Ice</option>
+                <option value="gold">Golden Age</option>
+                <option value="light">Daylight Mode</option>
+              </select>
+            </div>
+            <div class="theme-preview-row mt-2" id="themePreviewRow">
+              <div class="theme-dot" data-theme="space"  onclick="applyTheme('space')"  title="Space Blue"></div>
+              <div class="theme-dot" data-theme="neon"   onclick="applyTheme('neon')"   title="Neon Cyber"></div>
+              <div class="theme-dot" data-theme="fire"   onclick="applyTheme('fire')"   title="Fire Storm"></div>
+              <div class="theme-dot" data-theme="ice"    onclick="applyTheme('ice')"    title="Arctic Ice"></div>
+              <div class="theme-dot" data-theme="gold"   onclick="applyTheme('gold')"   title="Golden Age"></div>
+              <div class="theme-dot" data-theme="light"  onclick="applyTheme('light')"  title="Daylight"></div>
+            </div>
+          </div>
+
+          <!-- CONTROLS -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-keyboard me-2"></i>CONTROLS REFERENCE</div>
+            <div class="ctrl-mini-grid">
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key"> / A</span><span>Rotate L</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key"> / D</span><span>Rotate R</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key"> / W</span><span>Thrust</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key"> / S</span><span>Brake</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key">SPACE</span><span>Fire</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key">P</span><span>Pause</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key">M</span><span>Mute</span></div>
+              <div class="ctrl-mini-row"><span class="ctrl-mini-key">ESC</span><span>Quit</span></div>
+            </div>
+          </div>
+
+          <!-- SHIP SELECTION -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-space-shuttle me-2"></i>SELECT SHIP</div>
+            <div class="ship-select-grid" id="skinGrid">
+
+              <div class="ship-select-card active" data-skin="0">
+                <canvas width="70" height="80" class="skin-canvas" data-skin="0"></canvas>
+                <div class="ssc-name">NOVA</div>
+                <div class="ssc-desc">Balanced fighter</div>
+                <div class="ssc-stats">
+                  <span class="ssc-stat"><i class="fas fa-tachometer-alt"></i> Speed: 5</span>
+                  <span class="ssc-stat"><i class="fas fa-shield-alt"></i> Shield: 100</span>
+                  <span class="ssc-stat"><i class="fas fa-crosshairs"></i> Fire: Normal</span>
+                </div>
+              </div>
+
+              <div class="ship-select-card" data-skin="1">
+                <canvas width="70" height="80" class="skin-canvas" data-skin="1"></canvas>
+                <div class="ssc-name">CRIMSON</div>
+                <div class="ssc-desc">Fast interceptor</div>
+                <div class="ssc-stats">
+                  <span class="ssc-stat ssc-up"><i class="fas fa-tachometer-alt"></i> Speed: 7</span>
+                  <span class="ssc-stat ssc-down"><i class="fas fa-shield-alt"></i> Shield: 80</span>
+                  <span class="ssc-stat ssc-up"><i class="fas fa-crosshairs"></i> Fire: Fast</span>
+                </div>
+              </div>
+
+              <div class="ship-select-card" data-skin="2">
+                <canvas width="70" height="80" class="skin-canvas" data-skin="2"></canvas>
+                <div class="ssc-name">PHANTOM</div>
+                <div class="ssc-desc">Heavy armor</div>
+                <div class="ssc-stats">
+                  <span class="ssc-stat ssc-down"><i class="fas fa-tachometer-alt"></i> Speed: 4</span>
+                  <span class="ssc-stat ssc-up"><i class="fas fa-shield-alt"></i> Shield: 130</span>
+                  <span class="ssc-stat"><i class="fas fa-crosshairs"></i> Fire: Normal</span>
+                </div>
+              </div>
+
+              <div class="ship-select-card" data-skin="3">
+                <canvas width="70" height="80" class="skin-canvas" data-skin="3"></canvas>
+                <div class="ssc-name">SPECTRE</div>
+                <div class="ssc-desc">Rapid fire specialist</div>
+                <div class="ssc-stats">
+                  <span class="ssc-stat ssc-up"><i class="fas fa-tachometer-alt"></i> Speed: 6</span>
+                  <span class="ssc-stat ssc-down"><i class="fas fa-shield-alt"></i> Shield: 90</span>
+                  <span class="ssc-stat ssc-up"><i class="fas fa-crosshairs"></i> Fire: x2</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- DATA -->
+          <div class="ns-settings-group mb-3">
+            <div class="nsg-title"><i class="fas fa-database me-2"></i>DATA</div>
+            <div class="nsg-row d-flex justify-content-between align-items-center" style="border:none">
+              <span class="nsg-label">Total Play Time: <strong id="totalPlayTime">0m</strong></span>
+              <button class="ns-btn ns-btn-danger-sm" onclick="resetAllData()">
+                <i class="fas fa-trash me-1"></i>RESET ALL
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 8  CREDITS
+ -->
+<div id="screen-credits" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-users me-2"></i>CREDITS</h2>
+      <div class="ns-hd-deco gold"></div>
+    </div>
+    <div class="container py-4 ns-scroll">
+      <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9 col-12">
+          <div class="ns-card text-center mb-4">
+            <div class="credits-logo">NOVA<span>STRIKE</span></div>
+            <p class="credits-sub">Space Arcade Game  Arcade Edition 2025</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="credit-card text-center">
+                <div class="cc-icon"><i class="fas fa-code"></i></div>
+                <h6 class="cc-title">TECHNOLOGY</h6>
+                <p class="cc-desc">HTML5  CSS3  Bootstrap 5  Vanilla JavaScript  Web Audio API  Canvas 2D</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="credit-card text-center">
+                <div class="cc-icon"><i class="fas fa-graduation-cap"></i></div>
+                <h6 class="cc-title">PURPOSE</h6>
+                <p class="cc-desc">Bootstrap 5 web framework assignment demonstrating responsive design and game UI.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="credit-card text-center">
+                <div class="cc-icon"><i class="fas fa-gamepad"></i></div>
+                <h6 class="cc-title">FEATURES</h6>
+                <p class="cc-desc">5 Levels  Boss Fights  7 Power-Ups  Combo System  12 Achievements</p>
+              </div>
+            </div>
+          </div>
+          <div class="ns-card mt-4">
+            <div class="ns-card-head"><i class="fas fa-book me-2"></i>BOOTSTRAP 5 COMPONENTS USED</div>
+            <div class="row g-2 mt-1">
+              <div class="col-6 col-md-4"><span class="tech-tag">Navbar + Collapse</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Cards + Grid</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Progress Bars</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Nav Tabs / Pills</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Tables</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Badges</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Dropdowns</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Modals</span></div>
+              <div class="col-6 col-md-4"><span class="tech-tag">Grid System</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     IN-GAME HUD NAVBAR
+     Score, lives, shield, level, pause, mute
+ -->
+<nav id="gameNav" class="game-hud-bar hidden">
+  <div class="ghb-left">
+    <div class="ghb-logo">N<span>S</span></div>
+    <div class="ghb-level-pill">LVL <span id="gnLevel">1</span></div>
+    <div class="ghb-level-name" id="gnLevelName">PATROL</div>
+  </div>
+  <div class="ghb-center">
+    <div class="ghb-stat"><div class="ghs-l">SCORE</div><div class="ghs-v" id="gnScore">0</div></div>
+    <div class="ghb-stat"><div class="ghs-l">COMBO</div><div class="ghs-v ghs-combo" id="gnCombo">x1</div></div>
+    <div class="ghb-stat"><div class="ghs-l">WEAPON</div><div class="ghs-v ghs-weapon" id="gnWeapon">BASIC</div></div>
+    <div class="ghb-stat d-none d-lg-flex"><div class="ghs-l"><i class="fas fa-coins"></i></div><div class="ghs-v ghs-coins" id="gnCoins">0</div></div>
+    <div class="ghb-stat d-none d-xl-flex"><div class="ghs-l"><i class="fas fa-star"></i></div><div class="ghs-v" id="gnXP">0</div></div>
+    <div class="ghb-stat"><div class="ghs-l">AMMO</div><div class="ghs-v ghs-ammo" id="gnAmmo"></div></div>
+    <div class="ghb-stat d-none d-md-block" id="bonusStat" style="display:none!important">
+      <div class="ghs-l">BONUS</div><div class="ghs-v ghs-bonus" id="gnBonus">x2</div>
+    </div>
+  </div>
+  <div class="ghb-right">
+    <div class="ghb-lives" id="gnLives"></div>
+    <div class="ghb-shield-wrap">
+      <div class="ghb-shield-track">
+        <div class="ghb-shield-fill" id="gnShield" style="width:100%"></div>
+      </div>
+      <i class="fas fa-shield-alt ghb-shield-ico"></i>
+    </div>
+    <button class="ghb-btn" id="gnPause" onclick="togglePause()" title="Pause (P)"><i class="fas fa-pause"></i></button>
+    <button class="ghb-btn" id="gnRestart" onclick="confirmRestart()" title="Restart (R)"><i class="fas fa-redo"></i></button>
+    <button class="ghb-btn" id="gnMute" onclick="toggleMute()" title="Mute (M)"><i class="fas fa-volume-up"></i></button>
+    <button class="ghb-btn ghb-btn-quit" id="gnQuit" onclick="quitToMenu()" title="Quit (ESC)"><i class="fas fa-times"></i></button>
+  </div>
+</nav>
+
+<!-- 
+     SCREEN  LOGIN
+ -->
+<div id="screen-login" class="ns-screen hidden">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="ship1.png" class="auth-ship-img" alt="ship"/>
+        <div class="auth-title">NOVA<span>STRIKE</span></div>
+        <div class="auth-sub">SPACE ARCADE</div>
+      </div>
+      <h2 class="auth-heading">PILOT LOGIN</h2>
+      <div class="auth-field">
+        <label class="auth-label">CALLSIGN</label>
+        <input type="text" id="loginName" class="auth-input" placeholder="Enter callsign..." maxlength="20"/>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">PASSWORD</label>
+        <input type="password" id="loginPass" class="auth-input" placeholder="Enter password..."/>
+      </div>
+      <div class="auth-error hidden" id="loginError">Invalid callsign or password</div>
+      <button class="auth-btn auth-btn-primary" onclick="doLogin()">
+        <i class="fas fa-rocket me-2"></i>LAUNCH IN
+      </button>
+      <div class="auth-divider"><span>OR</span></div>
+      <button class="auth-btn auth-btn-guest" onclick="doGuest()">
+        <i class="fas fa-user-astronaut me-2"></i>PLAY AS GUEST
+      </button>
+      <div class="auth-footer">
+        No account? <a href="#" data-target="signup" class="auth-link">CREATE PILOT</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN  SIGNUP
+ -->
+<div id="screen-signup" class="ns-screen hidden">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="ship1.png" class="auth-ship-img" alt="ship"/>
+        <div class="auth-title">NOVA<span>STRIKE</span></div>
+        <div class="auth-sub">CREATE PILOT</div>
+      </div>
+      <h2 class="auth-heading">REGISTER</h2>
+      <div class="auth-field">
+        <label class="auth-label">CALLSIGN</label>
+        <input type="text" id="signupName" class="auth-input" placeholder="Choose callsign..." maxlength="20"/>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">PASSWORD</label>
+        <input type="password" id="signupPass" class="auth-input" placeholder="Choose password..."/>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">CONFIRM PASSWORD</label>
+        <input type="password" id="signupPass2" class="auth-input" placeholder="Confirm password..."/>
+      </div>
+      <div class="auth-error hidden" id="signupError">Passwords do not match</div>
+      <button class="auth-btn auth-btn-primary" onclick="doSignup()">
+        <i class="fas fa-user-plus me-2"></i>CREATE PILOT
+      </button>
+      <div class="auth-divider"><span>OR</span></div>
+      <button class="auth-btn auth-btn-guest" onclick="doGuest()">
+        <i class="fas fa-user-astronaut me-2"></i>PLAY AS GUEST
+      </button>
+      <div class="auth-footer">
+        Have an account? <a href="#" data-target="login" class="auth-link">LOGIN</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN  PROFILE
+ -->
+<div id="screen-profile" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-user-astronaut me-2"></i>PILOT PROFILE</h2>
+      <div class="ns-hd-deco"></div>
+    </div>
+    <div class="ns-scroll">
+
+      <!-- Hero banner -->
+      <div class="profile-banner">
+        <div class="profile-banner-bg"></div>
+        <div class="profile-banner-content">
+          <div class="profile-avatar-wrap">
+            <img src="ship4.png" class="profile-ship-img" alt="ship"/>
+            <div class="profile-rank-ring" id="profileRankRing">S</div>
+          </div>
+          <div class="profile-banner-info">
+            <div class="profile-pilot-name" id="profileName">PILOT</div>
+            <div class="profile-pilot-tag" id="profileTag">GUEST PILOT</div>
+            <div class="profile-pilot-joined" id="profileJoined">Playing since today</div>
+            <div class="profile-coins-row">
+              <i class="fas fa-coins"></i>
+              <span id="profileCoins">0</span> coins
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-3 pb-4">
+
+        <!-- Rank card -->
+        <div class="profile-rank-card mb-3">
+          <div class="prc-left">
+            <div class="prc-rank-letter" id="profileRankBadge">F</div>
+            <div class="prc-rank-label">CURRENT RANK</div>
+          </div>
+          <div class="prc-right">
+            <div class="prc-desc" id="profileRankDesc">Keep playing to rank up!</div>
+            <div class="prc-bar-wrap">
+              <div class="prc-bar" id="psRankBar" style="width:0%"></div>
+            </div>
+            <div class="prc-next">Next: <span id="psRankVal">F</span></div>
+          </div>
+        </div>
+
+        <!-- Stats grid 2x4 -->
+        <div class="profile-stats-grid mb-3">
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#ffcc00"><i class="fas fa-star"></i></div>
+            <div class="pstat-val" id="psBestScore">0</div>
+            <div class="pstat-label">BEST SCORE</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#00aaff"><i class="fas fa-layer-group"></i></div>
+            <div class="pstat-val" id="psBestLevel">1</div>
+            <div class="pstat-label">BEST LEVEL</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#00ffaa"><i class="fas fa-gamepad"></i></div>
+            <div class="pstat-val" id="psGames">0</div>
+            <div class="pstat-label">GAMES</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#aa88ff"><i class="fas fa-clock"></i></div>
+            <div class="pstat-val" id="psPlaytime">0m</div>
+            <div class="pstat-label">PLAYTIME</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#ff8800"><i class="fas fa-meteor"></i></div>
+            <div class="pstat-val" id="psAsteroids">0</div>
+            <div class="pstat-label">DESTROYED</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#ff4444"><i class="fas fa-fire"></i></div>
+            <div class="pstat-val" id="psMaxCombo">x1</div>
+            <div class="pstat-label">MAX COMBO</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#cc44ff"><i class="fas fa-skull"></i></div>
+            <div class="pstat-val" id="psBossKills">0</div>
+            <div class="pstat-label">BOSSES</div>
+          </div>
+          <div class="pstat-card">
+            <div class="pstat-icon" style="color:#ffee00"><i class="fas fa-coins"></i></div>
+            <div class="pstat-val" id="psPowerups">0</div>
+            <div class="pstat-label">POWER-UPS</div>
+          </div>
+        </div>
+
+        <!-- Achievements progress -->
+        <div class="profile-section mb-3">
+          <div class="profile-section-title">
+            <i class="fas fa-medal me-2"></i>ACHIEVEMENTS
+            <span class="ps-count" id="psAchVal">0/12</span>
+          </div>
+          <div class="pp-bar-wrap mb-2">
+            <div class="pp-bar pp-bar-gold" id="psAchBar" style="width:0%"></div>
+          </div>
+          <button class="ns-btn ns-btn-ghost w-100 mt-1" onclick="showScreen('achievements')">
+            <i class="fas fa-trophy me-2"></i>VIEW ALL ACHIEVEMENTS
+          </button>
+        </div>
+
+        <!-- Recent runs -->
+        <div class="profile-section mb-3">
+          <div class="profile-section-title"><i class="fas fa-history me-2"></i>RECENT SORTIES</div>
+          <div id="psRecentRuns"></div>
+        </div>
+
+        <!-- Active perks -->
+        <div class="profile-section mb-3">
+          <div class="profile-section-title"><i class="fas fa-bolt me-2"></i>ACTIVE PERKS</div>
+          <div id="psActivePerks" class="reward-active-list"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-grid gap-2 pb-4">
+          <button class="ns-btn ns-btn-primary" onclick="launchGame()">
+            <i class="fas fa-rocket me-2"></i>LAUNCH MISSION
+          </button>
+          <button class="ns-btn ns-btn-secondary" onclick="showScreen('rewards')">
+            <i class="fas fa-gift me-2"></i>REWARDS SHOP
+          </button>
+          <button class="ns-btn ns-btn-ghost" onclick="doLogout()">
+            <i class="fas fa-sign-out-alt me-2"></i>LOGOUT
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 9  GAME CANVAS
+     Actual gameplay, with pause/levelup/boss/countdown overlays
+ -->
+<div id="screen-game" class="ns-screen hidden">
+  <canvas id="gameCanvas"></canvas>
+  <aside id="missionPanel" class="game-mission-panel" aria-live="polite">
+    <div class="gmp-kicker">MISSION STATUS</div>
+    <div class="gmp-title" id="gmpSector">SECTOR 1 - PATROL</div>
+    <div class="gmp-grid">
+      <div class="gmp-cell"><span class="gmp-label">Threats</span><strong id="gmpThreats">0</strong></div>
+      <div class="gmp-cell"><span class="gmp-label">Kills</span><strong id="gmpKills">0</strong></div>
+      <div class="gmp-cell"><span class="gmp-label">Next level</span><strong id="gmpNext">350</strong></div>
+    </div>
+    <div class="gmp-objective" id="gmpObjective">Dodge incoming threats and build your combo.</div>
+  </aside>
+
+  <!-- Pause overlay -->
+  <div id="overlayPause" class="gm-overlay hidden">
+    <div class="ov-card text-center">
+      <div class="ov-title blink-text"> PAUSED</div>
+      <p class="ov-sub">Mission on hold, commander.</p>
+      <div class="d-grid gap-3 mt-4" style="max-width:270px;margin:0 auto">
+        <button class="ns-btn ns-btn-primary" onclick="togglePause()"><i class="fas fa-play me-2"></i>RESUME</button>
+        <button class="ns-btn ns-btn-secondary" onclick="confirmRestart()"><i class="fas fa-redo me-2"></i>RESTART</button>
+        <button class="ns-btn ns-btn-ghost" onclick="quitToMenu()"><i class="fas fa-home me-2"></i>QUIT TO MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level-up overlay -->
+  <div id="overlayLevelUp" class="gm-overlay hidden no-pointer">
+    <div class="lu-card text-center">
+      <div class="lu-sub">SECTOR CLEARED</div>
+      <div class="lu-title" id="luTitle">LEVEL 2</div>
+      <div class="lu-name" id="luName">STORM</div>
+      <div class="lu-stars" id="luStars"></div>
+    </div>
+  </div>
+
+  <!-- Boss warning overlay -->
+  <div id="overlayBoss" class="gm-overlay hidden no-pointer">
+    <div class="boss-card text-center">
+      <div class="bc-warn"> WARNING </div>
+      <div class="bc-title">BOSS INCOMING</div>
+      <div class="bc-name" id="bossWarnName">ASTEROID TITAN</div>
+    </div>
+  </div>
+
+  <!-- Countdown overlay -->
+  <div id="overlayCountdown" class="gm-overlay hidden no-pointer">
+    <div class="cd-num" id="countdownNum">3</div>
+  </div>
+
+  <!-- Weapon Selection overlay -->
+  <div id="overlayWeaponSelect" class="gm-overlay hidden">
+    <div class="weapon-select-card">
+      <div class="ws-title">SELECT WEAPON</div>
+      <div class="ws-subtitle">Press number key or click to select</div>
+      <div class="ws-grid" id="weaponSelectGrid">
+        <!-- Weapons will be populated by JavaScript -->
+      </div>
+      <div class="ws-footer">
+        <button class="ns-btn ns-btn-ghost" onclick="hideWeaponSelect()">
+          <i class="fas fa-times me-2"></i>CLOSE
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN 10  GAME OVER
+     Stats, rank, new best, retry/menu
+ -->
+<div id="screen-gameover" class="ns-screen hidden">
+  <div class="go-screen-wrap">
+    <div class="go-card">
+
+      <!-- Header -->
+      <div class="text-center mb-3">
+        <div class="go-icon" id="goIcon"></div>
+        <div class="go-title" id="goTitle">SHIP DESTROYED</div>
+        <div class="go-sub" id="goSub">The void claims another pilot...</div>
+      </div>
+
+      <!-- Rank -->
+      <div class="go-rank text-center mb-3">
+        <div class="gr-label">MISSION RANK</div>
+        <div class="gr-letter" id="goRankLetter">D</div>
+        <div class="gr-desc" id="goRankDesc">Keep practicing!</div>
+      </div>
+
+      <!-- New best alert -->
+      <div class="ns-new-best hidden" id="newBestBanner">
+        NEW PERSONAL BEST SCORE!
+      </div>
+
+      <!-- Rewards earned this run -->
+      <div class="go-rewards hidden" id="goRewardsBlock">
+        <div class="go-rewards-title">REWARDS EARNED</div>
+        <div class="go-rewards-list" id="goRewardsList"></div>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="row g-2 mb-3">
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Final Score</div><div class="gos-v" id="goScore">0</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Best Score</div><div class="gos-v" id="goBest">0</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Level</div><div class="gos-v" id="goLevel">1</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Survived</div><div class="gos-v" id="goTime">0s</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Destroyed</div><div class="gos-v" id="goAst">0</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Max Combo</div><div class="gos-v" id="goCombo">x1</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Coins Earned</div><div class="gos-v go-coins" id="goCoins">0</div></div></div>
+        <div class="col-6"><div class="go-stat"><div class="gos-l">Total Coins</div><div class="gos-v go-coins" id="goTotalCoins">0</div></div></div>
+      </div>
+
+      <!-- Performance bar -->
+      <div class="mb-3">
+        <div class="d-flex justify-content-between mb-1">
+          <small class="go-prog-l">Performance</small>
+          <small class="go-prog-pct" id="goPerfPct">0%</small>
+        </div>
+        <div class="progress go-perf-bar">
+          <div class="progress-bar go-perf-fill" id="goPerfFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="d-grid gap-2 pb-2">
+        <button class="ns-btn ns-btn-primary" id="goRetry" onclick="launchGame()">
+          <i class="fas fa-redo me-2"></i>TRY AGAIN
+        </button>
+        <button class="ns-btn ns-btn-secondary" onclick="showScreen('rewards')">
+          <i class="fas fa-gift me-2"></i>REWARDS SHOP
+        </button>
+        <div class="d-flex gap-2">
+          <button class="ns-btn ns-btn-ghost flex-fill" onclick="showScreen('levels')">
+            <i class="fas fa-layer-group me-1"></i>LEVELS
+          </button>
+          <button class="ns-btn ns-btn-ghost flex-fill" onclick="showScreen('menu')">
+            <i class="fas fa-home me-1"></i>MENU
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 
+     SCREEN -- REWARDS SHOP
+-->
+<div id="screen-rewards" class="ns-screen hidden">
+  <div class="ns-inner-wrap">
+    <div class="ns-inner-header">
+      <button class="ns-back-btn" onclick="showScreen('menu')"><i class="fas fa-arrow-left"></i></button>
+      <h2 class="ns-inner-title"><i class="fas fa-gift me-2"></i>REWARDS SHOP</h2>
+      <div class="ns-hd-deco gold"></div>
+    </div>
+    <div class="ns-scroll px-3 py-3">
+
+      <!-- Coin balance -->
+      <div class="reward-balance mb-4">
+        <div class="rb-icon"><i class="fas fa-coins"></i></div>
+        <div>
+          <div class="rb-label">YOUR COINS</div>
+          <div class="rb-amount" id="rewardCoins">0</div>
+        </div>
+        <div class="rb-hint">Earn coins by playing. More score = more coins.</div>
+      </div>
+
+      <!-- Reward items grid -->
+      <div class="row g-3" id="rewardGrid"></div>
+
+      <!-- Owned rewards -->
+      <div class="mt-4 mb-2">
+        <div class="reward-section-title">ACTIVE PERKS</div>
+        <div id="activePerks" class="reward-active-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 
+     MOBILE TOUCH CONTROLS  Joystick + Fire
+     Dream League Soccer style: left thumb joystick
+     for movement, right thumb fire button
+ -->
+<div id="mobileControls" class="mob-ctrl hidden">
+
+  <!-- LEFT: Virtual Joystick for movement -->
+  <div class="joystick-zone" id="joystickZone">
+    <div class="joystick-base" id="joystickBase">
+      <div class="joystick-ring"></div>
+      <div class="joystick-knob" id="joystickKnob"></div>
+    </div>
+    <div class="joystick-label">MOVE</div>
+  </div>
+
+  <!-- RIGHT: Fire + Pause  far right side -->
+  <div class="mob-actions">
+    <button class="mob-btn mob-btn-pause" id="mcPause"
+            ontouchend="if(window.G&&G.running)togglePause()" aria-label="Pause">
+      <i class="fas fa-pause"></i>
+    </button>
+    <button class="mob-btn mob-btn-fire" id="mcFire" aria-label="Fire">
+      <i class="fas fa-crosshairs"></i>
+      <span class="fire-label">FIRE</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- 
+     FOOTER (non-game screens)
+ -->
+<footer id="mainFooter" class="ns-footer">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-center text-md-start">
+        <span class="footer-brand">NOVA<span>STRIKE</span></span>
+        <span class="footer-copy ms-2"> 2025</span>
+      </div>
+      <div class="col-md-4 text-center my-1 my-md-0">
+        <span class="footer-keys">
+          <kbd>↑↓←→</kbd> Move &nbsp;
+          <kbd>SPACE</kbd> Fire &nbsp;
+          <kbd>Q</kbd> Weapons &nbsp;
+          <kbd>P</kbd> Pause &nbsp;
+          <kbd>ESC</kbd> Quit
+        </span>
+      </div>
+      <div class="col-md-4 text-center text-md-end">
+        <span class="footer-tech">Bootstrap 5 + HTML5 Canvas</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap 5 JS -->
+<script src="libs/bootstrap.bundle.min.js"></script>
+<script src="style.js"></script>
+<script src="game.js"></script>
+
+<script>
+// ── BOOT SCRIPT ──────────────────────────────────────────────────────────────
+// Runs once after all scripts are loaded.
+// Handles: splash → menu transition, nav reward badges, keyboard shortcuts.
+// Does NOT override showScreen or launchGame — those live in style.js / game.js.
+// ─────────────────────────────────────────────────────────────────────────────
+(function() {
+  "use strict";
+
+  function boot() {
+    // 1. Hydrate settings
+    if (typeof hydrateNS === "function") hydrateNS();
+
+    // 2. Update reward badges in nav
+    if (typeof updateNavRewards === "function") updateNavRewards();
+
+    // 3. Splash → menu after 3 s (skip button also works)
+    var splashDone = false;
+    function goMenu() {
+      if (splashDone) return;
+      splashDone = true;
+      if (typeof showScreen === "function") showScreen("menu");
+    }
+    setTimeout(goMenu, 3000);
+
+    // 4. Click splash to skip immediately
+    var splash = document.getElementById("screen-splash");
+    if (splash) {
+      splash.style.cursor = "pointer";
+      splash.addEventListener("click", goMenu);
+    }
+
+    // 5. Keyboard: Enter / Space / Escape skips splash
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" || e.key === "Escape") goMenu();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
+

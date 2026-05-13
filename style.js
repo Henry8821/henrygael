@@ -241,8 +241,20 @@ function rankForScore(score) {
 // drawing functions can check whether an image is ready before using it.
 var _shipImgs = [];
 var _shipImgsLoaded = [];
+// Compute base path from the style.js script tag so images always resolve
+// correctly regardless of what subfolder the page is served from.
+var _imgBase = (function(){
+  var scripts = document.getElementsByTagName('script');
+  for (var s = 0; s < scripts.length; s++) {
+    if (scripts[s].src && scripts[s].src.indexOf('style.js') !== -1) {
+      return scripts[s].src.replace('style.js', '');
+    }
+  }
+  // fallback: same directory as the page
+  return window.location.href.replace(/\/[^\/]*$/, '/');
+})();
 (function(){
-  // All available player ship images for variety - corrected to match available assets
+  // All available player ship images
   var srcs = ["ship1.png", "ship3.png", "fighter.png", "ship4.png"];
   for (var i = 0; i < srcs.length; i++) {
     (function(idx, src){
@@ -251,24 +263,18 @@ var _shipImgsLoaded = [];
       img.onload  = function() { 
         _shipImgsLoaded[idx] = true; 
         console.log("Ship image loaded:", src, "at index", idx);
-        // Redraw previews when images load
         setTimeout(function() {
-          if (typeof drawSkinPreviews === 'function') {
-            drawSkinPreviews();
-          }
+          if (typeof drawSkinPreviews === 'function') { drawSkinPreviews(); }
         }, 200);
-        // Also redraw after a longer delay to ensure all images are loaded
         setTimeout(function() {
-          if (typeof drawSkinPreviews === 'function') {
-            drawSkinPreviews();
-          }
+          if (typeof drawSkinPreviews === 'function') { drawSkinPreviews(); }
         }, 1000);
       };
       img.onerror = function() { 
         _shipImgsLoaded[idx] = false; 
-        console.error("Failed to load ship image:", src);
+        console.error("Failed to load ship image:", _imgBase + src);
       };
-      img.src = src;
+      img.src = _imgBase + src;
       _shipImgs[idx] = img;
     })(i, srcs[i]);
   }

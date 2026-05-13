@@ -6,19 +6,6 @@
 ============================================================================= */
 "use strict";
 
-// ─── IMAGE BASE PATH ─────────────────────────────────────────────────────────
-// Resolve the folder where game.js lives so all image src values work
-// correctly regardless of whether the page is served from root or a subfolder.
-var _gameImgBase = (function(){
-  var scripts = document.getElementsByTagName('script');
-  for (var s = 0; s < scripts.length; s++) {
-    if (scripts[s].src && scripts[s].src.indexOf('game.js') !== -1) {
-      return scripts[s].src.replace(/game\.js.*$/, '');
-    }
-  }
-  return '';
-})();
-
 // ─── CANVAS SETUP ────────────────────────────────────────────────────────────
 
 // The main game canvas and its 2D drawing context.
@@ -1471,12 +1458,12 @@ var _bossImgs  = [];
   var bSrcs = ["Boss.png", "boss2.png", "boss3.png"];
   eSrcs.forEach(function(src){
     var img = new Image();
-    img.src = _gameImgBase + src;
+    img.src = src;
     _enemyImgs.push(img);
   });
   bSrcs.forEach(function(src){
     var img = new Image();
-    img.src = _gameImgBase + src;
+    img.src = src;
     _bossImgs.push(img);
   });
 })();

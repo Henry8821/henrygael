@@ -237,32 +237,17 @@ function rankForScore(score) {
 // --- SHIP IMAGE LOADING -------------------------------------------------------
 
 // Pre-load all four ship PNG files at startup.
-// Results are stored in _shipImgs[] and _shipImgsLoaded[] so the canvas
-// drawing functions can check whether an image is ready before using it.
+// Pre-load all ship PNG files at startup.
 var _shipImgs = [];
 var _shipImgsLoaded = [];
-// Compute base path from the style.js script tag so images always resolve
-// correctly regardless of what subfolder the page is served from.
-var _imgBase = (function(){
-  var scripts = document.getElementsByTagName('script');
-  for (var s = 0; s < scripts.length; s++) {
-    if (scripts[s].src && scripts[s].src.indexOf('style.js') !== -1) {
-      return scripts[s].src.replace('style.js', '');
-    }
-  }
-  // fallback: same directory as the page
-  return window.location.href.replace(/\/[^\/]*$/, '/');
-})();
 (function(){
-  // All available player ship images
   var srcs = ["ship1.png", "ship3.png", "fighter.png", "ship4.png"];
   for (var i = 0; i < srcs.length; i++) {
     (function(idx, src){
       var img = new Image();
       _shipImgsLoaded[idx] = false;
-      img.onload  = function() { 
-        _shipImgsLoaded[idx] = true; 
-        console.log("Ship image loaded:", src, "at index", idx);
+      img.onload = function() {
+        _shipImgsLoaded[idx] = true;
         setTimeout(function() {
           if (typeof drawSkinPreviews === 'function') { drawSkinPreviews(); }
         }, 200);
@@ -270,11 +255,11 @@ var _imgBase = (function(){
           if (typeof drawSkinPreviews === 'function') { drawSkinPreviews(); }
         }, 1000);
       };
-      img.onerror = function() { 
-        _shipImgsLoaded[idx] = false; 
-        console.error("Failed to load ship image:", _imgBase + src);
+      img.onerror = function() {
+        _shipImgsLoaded[idx] = false;
+        console.error("Failed to load ship image:", src);
       };
-      img.src = _imgBase + src;
+      img.src = src;
       _shipImgs[idx] = img;
     })(i, srcs[i]);
   }
@@ -1432,7 +1417,8 @@ function initMenuShipLoop() {
     if (!t0) t0 = t;
     var a = (t - t0) / 1000;
     var menuEl = document.getElementById("screen-menu");
-    if (menuEl && menuEl.style.display !== "none") {
+    // check active class instead of style.display (showScreen uses CSS classes)
+    if (menuEl && menuEl.classList.contains("active")) {
       mctx.clearRect(0, 0, sc.width, sc.height);
       var col = SKIN_PALETTE[window.selectedSkin || 0];
       drawShipOnCtx(mctx, sc.width / 2, sc.height * 0.48 + Math.sin(a * 1.2) * 10, col, a);

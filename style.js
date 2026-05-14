@@ -236,13 +236,23 @@ function rankForScore(score) {
 
 // --- SHIP IMAGE LOADING -------------------------------------------------------
 
-// Pre-load all four ship PNG files at startup.
 // Pre-load all ship PNG files at startup.
 var _shipImgs = [];
 var _shipImgsLoaded = [];
+// Compute the folder that contains index.html — works on desktop AND mobile.
+// pathname may be "/repo/" or "/repo/index.html" — we always want "/repo/".
+var _imgBase = (function(){
+  var p = window.location.pathname;
+  // If pathname ends with a file (has extension), strip the filename
+  if (p.match(/\/[^\/]+\.[^\/]+$/)) {
+    p = p.substring(0, p.lastIndexOf('/') + 1);
+  } else {
+    // Ensure trailing slash
+    if (p.charAt(p.length - 1) !== '/') p += '/';
+  }
+  return window.location.origin + p;
+})();
 (function(){
-  // Get the base URL of the page so images always load from the right place
-  var base = window.location.href.replace(/\/[^\/]*$/, '/');
   var srcs = ["ship1.png", "ship3.png", "fighter.png", "ship4.png"];
   for (var i = 0; i < srcs.length; i++) {
     (function(idx, src){
@@ -250,7 +260,6 @@ var _shipImgsLoaded = [];
       _shipImgsLoaded[idx] = false;
       img.onload = function() {
         _shipImgsLoaded[idx] = true;
-        console.log("✓ Loaded:", img.src);
         setTimeout(function() {
           if (typeof drawSkinPreviews === 'function') { drawSkinPreviews(); }
         }, 200);
@@ -260,9 +269,9 @@ var _shipImgsLoaded = [];
       };
       img.onerror = function() {
         _shipImgsLoaded[idx] = false;
-        console.error("✗ FAILED to load:", img.src);
+        console.error("Failed to load ship image:", _imgBase + src);
       };
-      img.src = base + src;
+      img.src = _imgBase + src;
       _shipImgs[idx] = img;
     })(i, srcs[i]);
   }

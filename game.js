@@ -1454,8 +1454,14 @@ function drawAsteroid(a) {
 var _enemyImgs = [];
 var _bossImgs  = [];
 (function(){
-  // Get the base URL of the page so images always load from the right place
-  var base = window.location.href.replace(/\/[^\/]*$/, '/');
+  // Same bulletproof base path used by style.js
+  var p = window.location.pathname;
+  if (p.match(/\/[^\/]+\.[^\/]+$/)) {
+    p = p.substring(0, p.lastIndexOf('/') + 1);
+  } else {
+    if (p.charAt(p.length - 1) !== '/') p += '/';
+  }
+  var base = window.location.origin + p;
   var eSrcs = ["enemy3.png", "enemy2.png", "Boss-SpaceShip-Game-Sprites2.png"];
   var bSrcs = ["Boss.png", "boss2.png", "boss3.png"];
   eSrcs.forEach(function(src){

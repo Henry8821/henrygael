@@ -239,19 +239,6 @@ function rankForScore(score) {
 // Pre-load all ship PNG files at startup.
 var _shipImgs = [];
 var _shipImgsLoaded = [];
-// Compute the folder that contains index.html — works on desktop AND mobile.
-// pathname may be "/repo/" or "/repo/index.html" — we always want "/repo/".
-var _imgBase = (function(){
-  var p = window.location.pathname;
-  // If pathname ends with a file (has extension), strip the filename
-  if (p.match(/\/[^\/]+\.[^\/]+$/)) {
-    p = p.substring(0, p.lastIndexOf('/') + 1);
-  } else {
-    // Ensure trailing slash
-    if (p.charAt(p.length - 1) !== '/') p += '/';
-  }
-  return window.location.origin + p;
-})();
 (function(){
   var srcs = ["ship1.png", "ship3.png", "fighter.png", "ship4.png"];
   for (var i = 0; i < srcs.length; i++) {
@@ -269,9 +256,9 @@ var _imgBase = (function(){
       };
       img.onerror = function() {
         _shipImgsLoaded[idx] = false;
-        console.error("Failed to load ship image:", _imgBase + src);
+        console.error("Failed to load ship image:", src);
       };
-      img.src = _imgBase + src;
+      img.src = src;
       _shipImgs[idx] = img;
     })(i, srcs[i]);
   }

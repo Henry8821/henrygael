@@ -241,6 +241,8 @@ function rankForScore(score) {
 var _shipImgs = [];
 var _shipImgsLoaded = [];
 (function(){
+  // Get the base URL of the page so images always load from the right place
+  var base = window.location.href.replace(/\/[^\/]*$/, '/');
   var srcs = ["ship1.png", "ship3.png", "fighter.png", "ship4.png"];
   for (var i = 0; i < srcs.length; i++) {
     (function(idx, src){
@@ -248,6 +250,7 @@ var _shipImgsLoaded = [];
       _shipImgsLoaded[idx] = false;
       img.onload = function() {
         _shipImgsLoaded[idx] = true;
+        console.log("✓ Loaded:", img.src);
         setTimeout(function() {
           if (typeof drawSkinPreviews === 'function') { drawSkinPreviews(); }
         }, 200);
@@ -257,9 +260,9 @@ var _shipImgsLoaded = [];
       };
       img.onerror = function() {
         _shipImgsLoaded[idx] = false;
-        console.error("Failed to load ship image:", src);
+        console.error("✗ FAILED to load:", img.src);
       };
-      img.src = src;
+      img.src = base + src;
       _shipImgs[idx] = img;
     })(i, srcs[i]);
   }
